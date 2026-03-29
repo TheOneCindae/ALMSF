@@ -1,0 +1,1219 @@
+================================ PRD.pdf ================================
+ 
+PRODUCT REQUIREMENTS DOCUMENT 
+(PRD) 
+Project Title 
+Adaptive Noise-Aware IR Spectroscopy Signal Processing & Functional Group 
+Identification System 
+ 
+1. Objective 
+Develop a modular system that: 
+●​ Ingests raw IR spectroscopy signals (CSV) 
+●​ Identifies and classifies noise types 
+●​ Applies adaptive filtering using VSSLMS 
+●​ Compares processed signals with a reference IR database 
+●​ Outputs top compound matches + functional groups 
+●​ Visualizes all stages via a dashboard 
+ 
+2. Problem Statement 
+Traditional IR signal analysis suffers from: 
+●​ Noise contamination (thermal, environmental, detector) 
+●​ Static filtering methods (non-adaptive) 
+●​ Limited interpretability (no confidence scoring or explainability) 
+This system solves: 
+●​ Dynamic noise handling 
+●​ Adaptive filtering 
+●​ Robust spectral matching 
+●​ User-facing interpretability 
+
+ 
+3. Scope 
+In Scope 
+●​ CSV-based signal ingestion 
+●​ Multi-class noise classification 
+●​ Adaptive LMS filtering (VSSLMS) 
+●​ IR spectral database matching 
+●​ Functional group extraction (via peaks) 
+●​ Dashboard visualization 
+Out of Scope 
+●​ Real-time hardware sensor integration 
+●​ 2D IR spectroscopy 
+●​ Deep learning-based classification 
+●​ Cloud deployment (optional future scope) 
+ 
+4. System Overview 
+High-Level Workflow 
+CSV Input → Preprocessing → Noise Classification → Adaptive LMS Filter  
+→ Compensation Engine → Spectral Matching → Functional Group Detection → Dashboard 
+Output 
+ 
+This aligns with the 6-module architecture defined in your system design . 
+ 
+5. Functional Requirements 
+
+5.1 Signal Ingestion 
+●​ Upload CSV file 
+●​ Auto-detect headers 
+●​ Handle missing values (NaN interpolation) 
+●​ Normalize signal amplitude 
+ 
+5.2 Preprocessing 
+●​ Compute FFT 
+●​ Adaptive cutoff selection 
+●​ Generate: 
+○​ Estimated clean signal (x_est) 
+○​ Noise estimate 
+ 
+5.3 Noise Classification 
+●​ Classify into: 
+○​ Non-stationary 
+○​ Detector 
+○​ Environmental 
+○​ Thermal 
+○​ Electronic 
+●​ Apply priority-based decision logic 
+●​ Fallback mechanism for unknown noise 
+ 
+5.4 Adaptive Filtering Engine 
+●​ Implement VSSLMS algorithm 
+●​ Dynamic step-size (μ) adjustment 
+●​ Stability constraint enforcement 
+●​ Divergence detection and reset 
+●​ Runtime variance monitoring 
+ 
+
+5.5 Compensation Engine 
+●​ Select filter parameters (M, μ) 
+●​ Adjust based on signal power 
+●​ Re-evaluate during runtime 
+●​ Post-filter SNR validation 
+●​ Trigger fallback if SNR < 0 dB 
+ 
+5.6 Spectral Matching 
+●​ Normalize signals 
+●​ Resample database signals 
+●​ Compute: 
+○​ Pearson correlation 
+○​ Spectral Angle Mapper (SAM) 
+●​ Generate top-3 matches with scores 
+ 
+5.7 Functional Group Detection 
+●​ Extract peaks from filtered signal 
+●​ Map peaks to known IR frequency bands 
+●​ Output detected functional groups 
+ 
+5.8 Dashboard (React UI) 
+Display Components: 
+●​ Raw vs Filtered Signal Graph 
+●​ Noise Classification Result 
+●​ Filter Parameters (M, μ) 
+●​ SNR Improvement 
+●​ Top-3 Compound Matches 
+●​ Functional Groups Identified 
+ 
+
+6. Non-Functional Requirements 
+Performance 
+●​ Processing time < 5 seconds for typical signals (N ≤ 10,000) 
+●​ Efficient MATLAB execution 
+Scalability 
+●​ Modular design allows independent upgrades 
+●​ Database expansion supported 
+Reliability 
+●​ Fallback mechanisms: 
+○​ Noise classification fallback 
+○​ Filter rerun on poor SNR 
+Usability 
+●​ Simple CSV upload interface 
+●​ Clear visualization of results 
+ 
+7. System Architecture 
+Frontend 
+●​ React.js 
+●​ Charting library (Chart.js / Recharts) 
+Backend (Middleware) 
+●​ Python (FastAPI preferred) 
+●​ Handles: 
+○​ File upload 
+○​ MATLAB execution 
+
+○​ JSON response 
+Processing Engine 
+●​ MATLAB 
+●​ Executes Modules 1–6 
+ 
+8. Data Flow 
+React UI → API → MATLAB Engine → Processing → JSON Output → UI Rendering 
+ 
+ 
+9. Data Model 
+Input 
+{ 
+  "signal": [float], 
+  "sampling_rate": float 
+} 
+ 
+Output 
+{ 
+  "noise_type": "Environmental", 
+  "snr_before": float, 
+  "snr_after": float, 
+  "filter_params": { 
+    "M": int, 
+    "mu": float 
+  }, 
+  "top_matches": [ 
+    {"name": "Ethanol", "score": 0.87}, 
+    {"name": "Methanol", "score": 0.82} 
+  ], 
+  "functional_groups": ["O-H", "C-H"] 
+} 
+
+ 
+ 
+10. User Stories 
+Student/User 
+●​ Upload a noisy IR signal 
+●​ View cleaned signal 
+●​ Understand noise type 
+●​ Identify compounds and functional groups 
+Evaluator 
+●​ Validate algorithm robustness 
+●​ Inspect filtering performance 
+●​ Compare results with known references 
+ 
+11. Success Metrics 
+●​ ≥ 85% accuracy in compound matching (on test dataset) 
+●​ Positive SNR improvement in ≥ 90% cases 
+●​ Correct noise classification in ≥ 80% cases 
+●​ Functional group detection accuracy ≥ 75% 
+ 
+12. Risks & Mitigation 
+Risk 
+Mitigation 
+Misclassification of noise 
+Tunable thresholds 
+LMS divergence 
+Runtime stability constraint 
+Poor matching accuracy 
+Combined SAM + Pearson 
+Integration failure 
+API abstraction layer 
+
+ 
+13. Milestones 
+Phase 
+Deliverable 
+Phase 
+1 
+MATLAB filtering pipeline 
+Phase 
+2 
+Noise classification + 
+compensation 
+Phase 
+3 
+Database matching 
+Phase 
+4 
+Functional group detection 
+Phase 
+5 
+API integration 
+Phase 
+6 
+React dashboard 
+ 
+14. Future Enhancements 
+●​ Real-time sensor integration 
+●​ ML-based classification 
+●​ Cloud deployment 
+●​ Advanced spectral analysis (2D IR) 
+ 
+15. Final Positioning 
+This is not just a filtering tool. It is: 
+An intelligent IR signal analysis platform combining adaptive DSP, noise 
+intelligence, and chemical interpretation. 
+
+ 
+
+================================ DESIGN.pdf ================================
+Below is a UI/UX Design Document aligned with your dashboard (both the screenshot and 
+HTML structure). This is written at a level suitable for implementation + evaluation. 
+ 
+UI/UX DESIGN DOCUMENT 
+Project: KINETIC_LAB – Signal Processing Dashboard 
+ 
+1. Design Objective 
+Deliver a high-fidelity, real-time analytical dashboard for IR signal processing that: 
+●​ Visualizes adaptive filtering behavior 
+●​ Provides interpretable signal metrics 
+●​ Displays compound matching results 
+●​ Highlights detected functional groups 
+●​ Enables parameter control for experimentation 
+ 
+2. Design Philosophy 
+Core Principles 
+●​ Signal-first visualization (data dominates UI) 
+●​ Low-latency perception (fast feedback loops) 
+●​ Technical aesthetic (lab-grade interface) 
+●​ Minimal cognitive load 
+●​ Explainability over decoration 
+ 
+3. Layout Architecture 
+
+3.1 Global Layout Structure 
+Top Bar (System Status + Actions) 
+│ 
+├── Sidebar (Navigation) 
+│ 
+└── Main Workspace 
+    ├── Control Panel 
+    ├── Metrics Panel 
+    ├── Signal Visualization 
+    └── Analysis Panels 
+ 
+This structure is clearly reflected in your HTML layout . 
+ 
+4. Component-Level Design 
+ 
+4.1 Top Navigation Bar 
+Purpose 
+●​ System identity 
+●​ Execution control 
+●​ Session state 
+Key Elements 
+●​ System Title: KINETIC_LAB 
+●​ Status Indicator: READY_STATE (animated) 
+●​ Primary Actions: 
+○​ Upload 
+○​ Run Filter (CTA) 
+○​ Settings 
+Design Notes 
+●​ High contrast CTA (cyan glow) 
+●​ Status uses green pulse → system alive signal 
+
+ 
+4.2 Sidebar Navigation 
+Sections 
+●​ Signal Processing (Active) 
+●​ Noise Analysis 
+●​ Library 
+●​ Logs 
+Behavior 
+●​ Active tab highlighted (cyan border) 
+●​ Hover → subtle translation animation 
+Insight 
+This establishes: 
+Multi-module scalability (future expansion ready) 
+ 
+4.3 Control Panel (Top Controls) 
+Inputs 
+●​ Dataset selection (dropdown) 
+●​ Sample size (slider) 
+●​ Noise level (slider) 
+●​ Filter order (slider + auto toggle) 
+Advanced Toggle 
+●​ Enables expert parameter tuning 
+Design Evaluation 
+●​ Sliders give continuous control → good for DSP experimentation 
+●​ Auto toggle aligns with adaptive system logic 
+ 
+
+4.4 Metrics Panel 
+Displayed Metrics 
+●​ Filter Order (M) 
+●​ Step Size (μ) 
+●​ MSE 
+●​ Input SNR 
+●​ Output SNR 
+●​ SNR Gain 
+Visual Encoding 
+●​ Cyan → neutral/system 
+●​ Green → improvement (SNR gain) 
+●​ Pink → error (MSE) 
+Strength 
+Immediate quantitative validation of filtering performance 
+ 
+4.5 Signal Visualization Panel 
+Title 
+Adaptive Signal Reconstruction 
+Plots 
+●​ Noisy Input (red) 
+●​ LMS Output (green) 
+●​ Lowpass Estimate (cyan dashed) 
+Features 
+●​ Grid-based axis 
+●​ Time-domain representation 
+●​ Overlay comparison 
+Embedded Insight Panel 
+
+●​ STDEV 
+●​ Kurtosis 
+●​ Variance 
+Assessment 
+This is the core cognitive layer of the system. 
+Users visually confirm filtering effectiveness + statistical behavior. 
+ 
+4.6 Compound Match Analysis 
+Structure 
+Table with: 
+●​ Compound name 
+●​ CAS number 
+●​ Match % 
+●​ Confidence bar 
+Behavior 
+●​ Top match highlighted 
+●​ Confidence encoded as bar length 
+Data Source 
+Aligned with: 
+●​ Pearson + SAM scoring system 
+ 
+4.7 Functional Group Panel 
+Display Type 
+Tag-based chips 
+Examples 
+
+●​ O–H Stretch 
+●​ C–H Alkanes 
+●​ CH2 Scissoring 
+Color Encoding 
+●​ Green → strong match 
+●​ Cyan → moderate 
+●​ Grey → weak/uncertain 
+Additional Metric 
+●​ Spectral Integrity bar 
+ 
+5. Design System 
+ 
+5.1 Color System 
+Color 
+Meaning 
+Cyan 
+System / active 
+Green 
+Success / 
+improvement 
+Pink 
+Error / MSE 
+Grey 
+Inactive 
+Dark background Lab environment 
+Defined in Tailwind config . 
+ 
+5.2 Typography 
+Type 
+Usage 
+
+Space 
+Grotesk 
+Headers 
+Inter 
+Body 
+Roboto Mono 
+Metrics / data 
+ 
+5.3 Interaction Patterns 
+●​ Hover → brightness increase 
+●​ Buttons → slight scale on click 
+●​ Status → animated pulse 
+●​ Graph → static (can be upgraded to dynamic) 
+ 
+6. Data Binding Architecture 
+Frontend State 
+{ 
+  signalData: [], 
+  filteredData: [], 
+  noiseType: "", 
+  metrics: {}, 
+  matches: [], 
+  functionalGroups: [] 
+} 
+ 
+ 
+API Integration Flow 
+Upload CSV → API → MATLAB → Process → JSON → UI Update 
+ 
+ 
+7. UX Strengths 
+
+What Works Well 
+●​ Clear separation of: 
+○​ Control 
+○​ Observation 
+○​ Analysis 
+●​ Immediate feedback loop 
+●​ Strong visual hierarchy 
+●​ Domain-specific UI (not generic dashboard) 
+ 
+8. UX Gaps (Critical Fixes Needed) 
+❌ 1. No Noise Type Display 
+You compute it — but don’t show it. 
+👉 Add: 
+●​ “Detected Noise: Environmental” 
+ 
+❌ 2. No LMS Behavior Visualization 
+You are hiding: 
+●​ μ evolution 
+●​ error convergence 
+👉 Add: 
+●​ Convergence graph (MSE vs iteration) 
+ 
+❌ 3. No Confidence Explanation 
+User sees % but not why 
+👉 Add tooltip: 
+
+●​ Pearson score 
+●​ SAM score 
+ 
+❌ 4. Static Graph (Currently) 
+From HTML, graph is SVG mock 
+👉 Replace with: 
+●​ Real chart library (Recharts / Plotly) 
+ 
+❌ 5. No Failure State UI 
+What if: 
+●​ SNR < 0 
+●​ No match found 
+👉 Add: 
+●​ Warning banner 
+ 
+9. Performance Considerations 
+●​ Avoid re-rendering entire dashboard 
+●​ Use memoization for charts 
+●​ Lazy load analysis panels 
+ 
+10. Future Enhancements 
+●​ Real-time streaming mode 
+●​ Frequency-domain visualization (FFT) 
+●​ Multi-signal comparison 
+
+●​ Export reports (PDF/CSV) 
+ 
+11. Final Assessment 
+Design Maturity: 8.5/10 
+Why 
+●​ Strong technical alignment 
+●​ Clean architecture 
+●​ High interpretability 
+What’s Missing 
+●​ Deeper algorithm transparency 
+●​ Real-time interactivity 
+●​ Error-state handling 
+ 
+12. Strategic Positioning 
+This is not a generic dashboard. 
+It is a signal intelligence interface — bridging DSP, chemistry, and visualization. 
+ 
+HTML CODE:​
+​
+<!DOCTYPE html> 
+ 
+<html class="dark" lang="en"><head> 
+<meta charset="utf-8"/> 
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/> 
+<title>KINETIC_LAB // SIGNAL_PROCESSING</title> 
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script> 
+<link 
+href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&a
+mp;family=Inter:wght@300;400;500;600;700&amp;family=Roboto+Mono:wght@400;500;700&a
+mp;display=swap" rel="stylesheet"/> 
+<link 
+href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..70
+0,0..1&amp;display=swap" rel="stylesheet"/> 
+<script id="tailwind-config"> 
+        tailwind.config = { 
+            darkMode: "class", 
+            theme: { 
+                extend: { 
+                    colors: { 
+                        "secondary": "#d7ffc5", 
+                        "outline": "#849495", 
+                        "tertiary": "#fff4f9", 
+                        "surface-container-low": "#191c22", 
+                        "error": "#ffb4ab", 
+                        "primary": "#e1fdff", 
+                        "secondary-fixed": "#79ff5b", 
+                        "surface-variant": "#32353c", 
+                        "tertiary-fixed": "#ffd7f5", 
+                        "on-secondary-fixed": "#022100", 
+                        "on-primary-fixed-variant": "#004f54", 
+                        "on-secondary-fixed-variant": "#095300", 
+                        "surface-container-highest": "#32353c", 
+
+                        "on-error": "#690005", 
+                        "tertiary-container": "#ffcbf4", 
+                        "on-secondary-container": "#0f6d00", 
+                        "on-error-container": "#ffdad6", 
+                        "outline-variant": "#3a494b", 
+                        "background": "#10131a", 
+                        "secondary-fixed-dim": "#2ae500", 
+                        "primary-fixed-dim": "#00dbe7", 
+                        "primary-fixed": "#74f5ff", 
+                        "on-surface-variant": "#b9cacb", 
+                        "on-tertiary-fixed": "#380038", 
+                        "surface": "#10131a", 
+                        "surface-tint": "#00dbe7", 
+                        "surface-bright": "#363940", 
+                        "on-tertiary-fixed-variant": "#810081", 
+                        "surface-container": "#1d2026", 
+                        "tertiary-fixed-dim": "#ffabf3", 
+                        "on-primary-container": "#006a71", 
+                        "secondary-container": "#2ff801", 
+                        "inverse-surface": "#e1e2eb", 
+                        "on-tertiary-container": "#ab00aa", 
+                        "on-background": "#e1e2eb", 
+                        "on-secondary": "#053900", 
+                        "surface-dim": "#10131a", 
+
+                        "inverse-primary": "#00696f", 
+                        "on-surface": "#e1e2eb", 
+                        "inverse-on-surface": "#2e3037", 
+                        "on-primary": "#00363a", 
+                        "primary-container": "#00f2ff", 
+                        "surface-container-lowest": "#0b0e14", 
+                        "on-primary-fixed": "#002022", 
+                        "error-container": "#93000a", 
+                        "on-tertiary": "#5b005b", 
+                        "surface-container-high": "#272a31" 
+                    }, 
+                    fontFamily: { 
+                        "headline": ["Space Grotesk"], 
+                        "body": ["Inter"], 
+                        "label": ["Inter"], 
+                        "mono": ["Roboto Mono"] 
+                    }, 
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": 
+"0.75rem"}, 
+                }, 
+            }, 
+        } 
+    </script> 
+<style> 
+        .material-symbols-outlined { 
+
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; 
+            display: inline-block; 
+            line-height: 1; 
+        } 
+        .ghost-border { border: 1px solid rgba(132, 148, 149, 0.15); } 
+        .accent-glow-cyan { box-shadow: 0 0 20px rgba(0, 242, 255, 0.1); } 
+        .accent-glow-green { box-shadow: 0 0 20px rgba(47, 248, 1, 0.1); } 
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; } 
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; } 
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #32353c; } 
+    </style> 
+</head> 
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container 
+selection:text-on-primary-container overflow-hidden h-screen flex flex-col"> 
+<!-- TopAppBar --> 
+<header class="flex justify-between items-center w-full px-6 py-4 bg-[#10131a] 
+dark:bg-slate-950 rounded-none border-b border-white/15 z-50"> 
+<div class="flex items-center gap-8"> 
+<div class="text-2xl font-bold tracking-widest text-[#e1fdff] dark:text-cyan-50 
+font-['Space_Grotesk'] uppercase"> 
+                KINETIC_LAB 
+            </div> 
+<div class="flex items-center gap-2 px-3 py-1 bg-secondary-container/10 border 
+border-secondary-container/20"> 
+<div class="w-2 h-2 rounded-full bg-secondary-container animate-pulse"></div> 
+<span class="font-mono text-[10px] tracking-widest text-secondary-container 
+uppercase">READY_STATE</span> 
+
+</div> 
+</div> 
+<div class="flex items-center gap-4"> 
+<button class="flex items-center gap-2 px-4 py-1.5 bg-white/5 hover:bg-white/10 transition-all 
+duration-300 group"> 
+<span class="material-symbols-outlined text-sm opacity-60 
+group-hover:opacity-100">sensors</span> 
+<span class="font-['Space_Grotesk'] text-[11px] font-bold tracking-widest text-slate-400 
+group-hover:text-slate-200 uppercase">UPLOAD</span> 
+</button> 
+<button class="px-6 py-2 bg-primary-container text-on-primary font-['Space_Grotesk'] font-bold 
+tracking-tighter uppercase transition-all duration-300 active:scale-95 brightness-125 
+hover:shadow-[0_0_20px_rgba(0,242,255,0.3)]"> 
+                RUN FILTER 
+            </button> 
+<div class="flex items-center ml-4 gap-2"> 
+<span class="material-symbols-outlined text-slate-500 hover:text-primary-container 
+cursor-pointer transition-colors" data-icon="settings">settings</span> 
+</div> 
+</div> 
+</header> 
+<div class="flex flex-1 overflow-hidden"> 
+<!-- SideNavBar --> 
+<nav class="fixed left-0 top-0 h-full flex flex-col bg-[#191c22] dark:bg-slate-900 rounded-none 
+border-r border-white/10 w-64 z-40"> 
+<div class="p-8 pb-4"> 
+<div class="flex items-center gap-3 mb-6"> 
+
+<div class="w-10 h-10 bg-surface-container-highest border border-white/10 flex items-center 
+justify-center overflow-hidden"> 
+<img alt="User" class="w-8 h-8" data-alt="minimalist technical avatar of a lab technician in cyan 
+and white wireframe style" 
+src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-wLMR9hkJ_kDsvzCvTkDJLP8XF
+9FfRPpccoUps7T1M2R4wqKKkBY-04Cx2mVNZ2JO-ro6Gu1ufiBsyB15rMSHCPsW8XyzqN-PZ
+QIAXcrwzLE2YEW9UJIlP9_C1Ksfgjk0EcbkOZngB3zb7xMWj3BcNKbSM32fnPXQKuBpkLTaBY
+87zz3ABn-Ld5hbvEmyo12ksFVbGOb5e_FWDn_A0vn690HMetost1ptruAVm5TDSG6IwFVjuE0
+4jYrk_kVE5po5eFMV0eRLbU0"/> 
+</div> 
+<div> 
+<div class="font-['Space_Grotesk'] text-xs font-bold uppercase tracking-widest 
+text-primary-container">STATION_01</div> 
+<div class="font-mono text-[9px] opacity-40">LD_482.990.2</div> 
+</div> 
+</div> 
+<button class="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/5 transition-all 
+text-left px-4 group"> 
+<span class="font-['Space_Grotesk'] text-[10px] font-bold uppercase tracking-widest 
+text-slate-400 group-hover:text-primary-container transition-colors">NEW_SESSION</span> 
+</button> 
+</div> 
+<div class="flex-1 mt-4"> 
+<a class="flex items-center gap-4 text-[#00f2ff] bg-white/5 border-l-2 border-[#00f2ff] py-4 px-6 
+font-['Space_Grotesk'] text-xs font-bold uppercase tracking-widest group" href="#"> 
+<span class="material-symbols-outlined transition-transform group-hover:translate-x-1" 
+data-icon="analytics">analytics</span> 
+                    Signal Processing 
+                </a> 
+
+<a class="flex items-center gap-4 text-slate-500 py-4 px-6 opacity-60 hover:opacity-100 
+hover:bg-white/5 transition-all font-['Space_Grotesk'] text-xs font-bold uppercase tracking-widest 
+group" href="#"> 
+<span class="material-symbols-outlined transition-transform group-hover:translate-x-1" 
+data-icon="waves">waves</span> 
+                    Noise Analysis 
+                </a> 
+<a class="flex items-center gap-4 text-slate-500 py-4 px-6 opacity-60 hover:opacity-100 
+hover:bg-white/5 transition-all font-['Space_Grotesk'] text-xs font-bold uppercase tracking-widest 
+group" href="#"> 
+<span class="material-symbols-outlined transition-transform group-hover:translate-x-1" 
+data-icon="folder_open">folder_open</span> 
+                    Library 
+                </a> 
+<a class="flex items-center gap-4 text-slate-500 py-4 px-6 opacity-60 hover:opacity-100 
+hover:bg-white/5 transition-all font-['Space_Grotesk'] text-xs font-bold uppercase tracking-widest 
+group" href="#"> 
+<span class="material-symbols-outlined transition-transform group-hover:translate-x-1" 
+data-icon="terminal">terminal</span> 
+                    Logs 
+                </a> 
+</div> 
+<div class="p-6 border-t border-white/5"> 
+<div class="flex items-center justify-between mb-4"> 
+<div class="flex items-center gap-2"> 
+<span class="material-symbols-outlined text-xs text-secondary-container" 
+data-icon="memory">memory</span> 
+<span class="font-mono text-[9px] uppercase tracking-tighter text-slate-500">System 
+Health</span> 
+
+</div> 
+<span class="font-mono text-[9px] text-secondary-container">98%</span> 
+</div> 
+<div class="w-full h-1 bg-white/5"> 
+<div class="h-full bg-secondary-container w-[98%]"></div> 
+</div> 
+</div> 
+</nav> 
+<!-- Main Content --> 
+<main class="ml-64 flex-1 flex flex-col bg-surface-container-lowest overflow-y-auto 
+custom-scrollbar pb-16"> 
+<!-- Contextual Controls --> 
+<section class="p-6 border-b border-white/5 grid grid-cols-12 gap-6 items-center"> 
+<div class="col-span-3"> 
+<label class="block font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant 
+mb-2">Dataset Selection</label> 
+<div class="relative group"> 
+<select class="w-full bg-surface-container-low border-0 ghost-border py-2.5 px-4 font-mono 
+text-xs focus:ring-1 focus:ring-primary-container appearance-none transition-all"> 
+<option>REALTIME_FEED_01.dat</option> 
+<option>ARCHIVE_BATCH_B.log</option> 
+<option>SYNTH_WAVEFORM_GEN</option> 
+</select> 
+<span class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-sm 
+opacity-50 pointer-events-none" data-icon="expand_more">expand_more</span> 
+</div> 
+
+</div> 
+<div class="col-span-2"> 
+<label class="block font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant 
+mb-2 flex justify-between"> 
+                        Samples (N) <span class="text-primary-container">1024</span> 
+</label> 
+<input class="w-full accent-primary-container h-1 bg-surface-container-highest cursor-pointer" 
+type="range"/> 
+</div> 
+<div class="col-span-2"> 
+<label class="block font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant 
+mb-2 flex justify-between"> 
+                        Noise Level <span class="text-primary-container">-12dB</span> 
+</label> 
+<input class="w-full accent-primary-container h-1 bg-surface-container-highest cursor-pointer" 
+type="range"/> 
+</div> 
+<div class="col-span-3"> 
+<label class="block font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant 
+mb-2 flex justify-between"> 
+                        Filter Order <span class="text-primary-container">75 Taps</span> 
+</label> 
+<div class="flex items-center gap-4"> 
+<input class="flex-1 accent-primary-container h-1 bg-surface-container-highest cursor-pointer" 
+type="range"/> 
+<div class="flex items-center gap-2"> 
+<span class="font-mono text-[9px] text-slate-500">AUTO</span> 
+
+<div class="w-8 h-4 bg-primary-container rounded-full p-0.5 flex justify-end items-center 
+cursor-pointer"> 
+<div class="w-3 h-3 bg-on-primary-container rounded-full"></div> 
+</div> 
+</div> 
+</div> 
+</div> 
+<div class="col-span-2 flex justify-end"> 
+<button class="ghost-border px-4 py-2 hover:bg-white/5 transition-all flex items-center gap-2"> 
+<span class="material-symbols-outlined text-sm" data-icon="tune">tune</span> 
+<span class="font-label text-[10px] uppercase font-bold tracking-widest">Advanced</span> 
+</button> 
+</div> 
+</section> 
+<!-- Key Metrics --> 
+<section class="p-6 grid grid-cols-6 gap-4"> 
+<div class="bg-surface-container border-l-2 border-primary-container p-4"> 
+<div class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-4">Filter 
+Order</div> 
+<div class="font-mono text-2xl font-bold text-primary">75 <span class="text-[10px] opacity-40 
+font-normal">taps</span></div> 
+</div> 
+<div class="bg-surface-container border-l-2 border-primary-container p-4"> 
+<div class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-4">Step 
+Size</div> 
+<div class="font-mono text-2xl font-bold text-primary">1.52<span 
+class="text-primary-container/60">e-1</span></div> 
+
+</div> 
+<div class="bg-surface-container border-l-2 border-error p-4"> 
+<div class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant 
+mb-4">MSE</div> 
+<div class="font-mono text-2xl font-bold text-[#ff00ff]">2.989<span 
+class="opacity-40">e-3</span></div> 
+</div> 
+<div class="bg-surface-container border-l-2 border-primary-container p-4"> 
+<div class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-4">Input 
+SNR</div> 
+<div class="font-mono text-2xl font-bold text-primary">2.1 <span class="text-[10px] opacity-40 
+font-normal">dB</span></div> 
+</div> 
+<div class="bg-surface-container border-l-2 border-secondary-container p-4"> 
+<div class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant 
+mb-4">Output SNR</div> 
+<div class="font-mono text-2xl font-bold text-secondary-container">6.0 <span class="text-[10px] 
+opacity-40 font-normal">dB</span></div> 
+</div> 
+<div class="bg-surface-container border-l-2 border-secondary-container p-4"> 
+<div class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-4">SNR 
+Gain</div> 
+<div class="font-mono text-2xl font-bold text-secondary-container">+3.9 <span 
+class="text-[10px] opacity-40 font-normal">dB</span></div> 
+</div> 
+</section> 
+<!-- Main Visualizer --> 
+<section class="px-6 pb-6 h-[400px]"> 
+
+<div class="h-full bg-surface-container-low ghost-border relative flex flex-col p-6"> 
+<div class="flex justify-between items-start mb-8"> 
+<div> 
+<h2 class="font-headline text-xl uppercase tracking-tighter mb-1">Adaptive Signal 
+Reconstruction</h2> 
+<p class="font-mono text-[10px] opacity-40 uppercase">Domain: Time Frequency / Resolution: 
+1024-Pt</p> 
+</div> 
+<div class="flex gap-6"> 
+<div class="flex items-center gap-2"> 
+<div class="w-3 h-0.5 bg-error"></div> 
+<span class="font-mono text-[10px] uppercase text-on-surface-variant">Noisy Input</span> 
+</div> 
+<div class="flex items-center gap-2"> 
+<div class="w-3 h-0.5 bg-secondary-container"></div> 
+<span class="font-mono text-[10px] uppercase text-on-surface-variant">LMS Output</span> 
+</div> 
+<div class="flex items-center gap-2"> 
+<div class="w-3 h-0.5 bg-primary-container border-b-2 border-dashed 
+border-primary-container/0"></div> 
+<span class="font-mono text-[10px] uppercase text-on-surface-variant">Lowpass Est</span> 
+</div> 
+</div> 
+</div> 
+<div class="flex-1 relative border-l border-b border-white/10 ml-10 mb-10 overflow-hidden"> 
+<!-- Grid Lines --> 
+
+<div class="absolute inset-0 grid grid-cols-12 pointer-events-none opacity-20"> 
+<div class="border-r border-white/20"></div><div class="border-r border-white/20"></div><div 
+class="border-r border-white/20"></div><div class="border-r border-white/20"></div><div 
+class="border-r border-white/20"></div><div class="border-r border-white/20"></div><div 
+class="border-r border-white/20"></div><div class="border-r border-white/20"></div><div 
+class="border-r border-white/20"></div><div class="border-r border-white/20"></div><div 
+class="border-r border-white/20"></div><div class="border-r border-white/20"></div> 
+</div> 
+<div class="absolute inset-0 grid grid-rows-6 pointer-events-none opacity-20"> 
+<div class="border-b border-white/20"></div><div class="border-b border-white/20"></div><div 
+class="border-b border-white/20"></div><div class="border-b border-white/20"></div><div 
+class="border-b border-white/20"></div><div class="border-b border-white/20"></div> 
+</div> 
+<!-- Data Visualizations (Simulated SVG) --> 
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 1000 400"> 
+<!-- Lowpass Est (Blue Dashed) --> 
+<path d="M0,200 Q100,100 200,200 T400,200 T600,200 T800,200 T1000,200" fill="none" 
+opacity="0.6" stroke="#00f2ff" stroke-dasharray="8,4" stroke-width="1.5"></path> 
+<!-- Noisy Input (Red/Pink) --> 
+<path d="M0,200 L10,180 L20,230 L30,170 L40,240 L50,160 L60,220 L70,190 L80,210 
+L90,150 L100,200 L110,160 L120,240 L130,180 L140,220 L150,140 L160,260 L170,190 
+L180,210 L190,150 L200,200 L210,160 L220,240 L230,180 L240,220 L250,140 L260,260 
+L270,190 L280,210 L290,150 L300,200 L310,160 L320,240 L330,180 L340,220 L350,140 
+L360,260 L370,190 L380,210 L390,150 L400,200 L410,160 L420,240 L430,180 L440,220 
+L450,140 L460,260 L470,190 L480,210 L490,150 L500,200 L510,160 L520,240 L530,180 
+L540,220 L550,140 L560,260 L570,190 L580,210 L590,150 L600,200 L610,160 L620,240 
+L630,180 L640,220 L650,140 L660,260 L670,190 L680,210 L690,150 L700,200 L710,160 
+L720,240 L730,180 L740,220 L750,140 L760,260 L770,190 L780,210 L790,150 L800,200 
+L810,160 L820,240 L830,180 L840,220 L850,140 L860,260 L870,190 L880,210 L890,150 
+L900,200 L910,160 L920,240 L930,180 L940,220 L950,140 L960,260 L970,190 L980,210 
+L990,150 L1000,200" fill="none" opacity="0.4" stroke="#ffb4ab" stroke-width="1"></path> 
+<!-- LMS Output (Green) --> 
+
+<path d="M0,200 Q50,180 100,210 T200,190 T300,205 T400,195 T500,200 T600,198 
+T700,202 T800,200 T900,199 T1000,200" fill="none" stroke="#2ff801" stroke-width="2"></path> 
+</svg> 
+<!-- Y-Axis Labels --> 
+<div class="absolute -left-10 inset-y-0 flex flex-col justify-between text-[8px] font-mono 
+text-slate-500 py-2"> 
+<span>+1.0V</span> 
+<span>+0.5V</span> 
+<span>0.0V</span> 
+<span>-0.5V</span> 
+<span>-1.0V</span> 
+</div> 
+<!-- X-Axis Labels --> 
+<div class="absolute -bottom-8 inset-x-0 flex justify-between text-[8px] font-mono text-slate-500 
+px-2"> 
+<span>0ms</span> 
+<span>100ms</span> 
+<span>200ms</span> 
+<span>300ms</span> 
+<span>400ms</span> 
+<span>500ms</span> 
+</div> 
+</div> 
+<!-- Floating Metadata --> 
+<div class="absolute bottom-16 right-16 bg-surface-container-highest/80 backdrop-blur-md p-4 
+border border-white/10 max-w-[200px]"> 
+
+<div class="font-label text-[9px] uppercase tracking-widest text-primary-container mb-2 flex 
+items-center gap-2"> 
+<span class="material-symbols-outlined text-[10px]" data-icon="info">info</span> 
+                            Analysis Node 7A 
+                        </div> 
+<div class="space-y-2"> 
+<div class="flex justify-between font-mono text-[9px]"> 
+<span class="opacity-40">STDEV:</span> 
+<span>0.0412</span> 
+</div> 
+<div class="flex justify-between font-mono text-[9px]"> 
+<span class="opacity-40">KURT:</span> 
+<span>3.125</span> 
+</div> 
+<div class="flex justify-between font-mono text-[9px]"> 
+<span class="opacity-40">VAR:</span> 
+<span>0.0017</span> 
+</div> 
+</div> 
+</div> 
+</div> 
+</section> 
+<!-- New Analysis Sections --> 
+<section class="px-6 grid grid-cols-12 gap-6 mb-8"> 
+<!-- Compound Match Analysis --> 
+
+<div class="col-span-7 bg-surface-container-low ghost-border p-6"> 
+<div class="flex items-center justify-between mb-6"> 
+<h3 class="font-headline text-sm font-bold uppercase tracking-widest text-primary-container flex 
+items-center gap-2"> 
+<span class="material-symbols-outlined text-sm">biotech</span> 
+                        Compound Match Analysis 
+                    </h3> 
+<div class="font-mono text-[10px] text-slate-500">DATABASE: NIST_MAIN_2023</div> 
+</div> 
+<div class="overflow-x-auto"> 
+<table class="w-full text-left font-mono text-xs"> 
+<thead> 
+<tr class="border-b border-white/5 text-on-surface-variant"> 
+<th class="pb-3 font-medium uppercase tracking-tighter">Identity</th> 
+<th class="pb-3 font-medium uppercase tracking-tighter">CAS Number</th> 
+<th class="pb-3 font-medium uppercase tracking-tighter">Match %</th> 
+<th class="pb-3 font-medium uppercase tracking-tighter">Confidence</th> 
+</tr> 
+</thead> 
+<tbody class="divide-y divide-white/5"> 
+<tr class="group hover:bg-white/5 transition-colors"> 
+<td class="py-4 text-primary font-medium">Ethanol Absolute</td> 
+<td class="py-4 opacity-40">64-17-5</td> 
+<td class="py-4 text-secondary-container">98.2%</td> 
+<td class="py-4"> 
+
+<div class="w-16 h-1 bg-white/5 overflow-hidden"> 
+<div class="h-full bg-secondary-container w-[98%]"></div> 
+</div> 
+</td> 
+</tr> 
+<tr class="group hover:bg-white/5 transition-colors"> 
+<td class="py-4 text-primary font-medium">Isopropanol</td> 
+<td class="py-4 opacity-40">67-63-0</td> 
+<td class="py-4 text-secondary-container/60">14.1%</td> 
+<td class="py-4"> 
+<div class="w-16 h-1 bg-white/5 overflow-hidden"> 
+<div class="h-full bg-secondary-container w-[14%]"></div> 
+</div> 
+</td> 
+</tr> 
+<tr class="group hover:bg-white/5 transition-colors"> 
+<td class="py-4 text-primary font-medium">Acetonitrile</td> 
+<td class="py-4 opacity-40">75-05-8</td> 
+<td class="py-4 text-secondary-container/20">3.4%</td> 
+<td class="py-4"> 
+<div class="w-16 h-1 bg-white/5 overflow-hidden"> 
+<div class="h-full bg-secondary-container w-[3%]"></div> 
+</div> 
+</td> 
+
+</tr> 
+</tbody> 
+</table> 
+</div> 
+</div> 
+<!-- Functional Groups Identified --> 
+<div class="col-span-5 bg-surface-container-low ghost-border p-6 flex flex-col"> 
+<h3 class="font-headline text-sm font-bold uppercase tracking-widest text-[#ff00ff] mb-6 flex 
+items-center gap-2"> 
+<span class="material-symbols-outlined text-sm">hub</span> 
+                    Functional Groups Identified 
+                </h3> 
+<div class="flex flex-wrap gap-2"> 
+<div class="px-3 py-1.5 bg-secondary-container/10 border border-secondary-container/30 
+text-secondary-container font-mono text-[10px] uppercase tracking-wider flex items-center 
+gap-2"> 
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span> 
+                        O-H Stretch 
+                    </div> 
+<div class="px-3 py-1.5 bg-primary-container/10 border border-primary-container/30 
+text-primary-container font-mono text-[10px] uppercase tracking-wider flex items-center gap-2"> 
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span> 
+                        C-H Alkanes 
+                    </div> 
+<div class="px-3 py-1.5 bg-white/5 border border-white/10 text-slate-400 font-mono text-[10px] 
+uppercase tracking-wider flex items-center gap-2"> 
+<span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span> 
+
+                        C-O Bend 
+                    </div> 
+<div class="px-3 py-1.5 bg-primary-container/10 border border-primary-container/30 
+text-primary-container font-mono text-[10px] uppercase tracking-wider flex items-center gap-2"> 
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span> 
+                        CH2 Scissoring 
+                    </div> 
+<div class="px-3 py-1.5 bg-white/5 border border-white/10 text-slate-400 font-mono text-[10px] 
+uppercase tracking-wider flex items-center gap-2"> 
+<span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span> 
+                        Methyl Group 
+                    </div> 
+</div> 
+<div class="mt-auto pt-6 border-t border-white/5"> 
+<div class="flex justify-between items-center"> 
+<span class="font-mono text-[9px] uppercase text-slate-500 tracking-widest">Spectral 
+Integrity</span> 
+<span class="font-mono text-[10px] text-[#ff00ff]">HIGH_RESOLVE</span> 
+</div> 
+<div class="mt-2 w-full h-1 bg-white/5"> 
+<div class="h-full bg-[#ff00ff] w-[82%]"></div> 
+</div> 
+</div> 
+</div> 
+</section> 
+</main> 
+
+</div> 
+<!-- Footer --> 
+<footer class="fixed bottom-0 right-0 left-64 flex justify-between px-6 py-2 z-40 bg-[#10131a] 
+dark:bg-black rounded-none border-t border-white/5 items-center"> 
+<div class="font-mono text-[10px] uppercase tracking-tighter text-[#2ff801] 
+dark:text-green-400"> 
+            CORE_OS v2.4.0 // SIGNAL_PROCESSING_LAB 
+        </div> 
+<div class="flex gap-6"> 
+<a class="font-mono text-[10px] uppercase tracking-tighter text-slate-600 hover:text-white 
+transition-colors cursor-crosshair" href="#">API_DOCS</a> 
+<a class="font-mono text-[10px] uppercase tracking-tighter text-slate-600 hover:text-white 
+transition-colors cursor-crosshair" href="#">LATENCY_REPORT</a> 
+<a class="font-mono text-[10px] uppercase tracking-tighter text-slate-600 hover:text-white 
+transition-colors cursor-crosshair" href="#">NODE_STATUS</a> 
+</div> 
+</footer> 
+</body></html> 
+ 
+
+================================ TECHSTACK.pdf ================================
+ 
+1. Recommended Tech Stack (Best Fit) 
+Core Architecture 
+React (Frontend) 
+      ↓ 
+FastAPI (Backend / Orchestration Layer) 
+      ↓ 
+MATLAB Engine API (Processing Core) 
+ 
+ 
+2. Why This Stack Wins 
+Frontend — React (Keep it) 
+●​ Strong ecosystem for dashboards 
+●​ Excellent charting libraries (Recharts, Chart.js) 
+●​ Component-based → easy modular UI 
+Verdict: Correct choice. No change needed. 
+ 
+Backend — FastAPI (Python) 
+This is the critical decision layer. 
+Why FastAPI over Node.js: 
+●​ Native integration with MATLAB Engine for Python 
+●​ Handles numerical data (arrays, signals) efficiently 
+●​ Async support → faster API responses 
+●​ Built-in validation (Pydantic) 
+👉 Node.js + MATLAB = friction​
+👉 Python + MATLAB = native synergy 
+
+Verdict: 
+FastAPI is the most efficient orchestration layer for your system. 
+ 
+Processing Layer — MATLAB 
+●​ Runs: 
+○​ LMS filter 
+○​ Noise classification 
+○​ Compensation engine 
+○​ Matching logic 
+Integration Method: 
+Use: 
+MATLAB Engine API for Python 
+ 
+Example flow: 
+import matlab.engine 
+eng = matlab.engine.start_matlab() 
+result = eng.adaptive_ir_filter_v2(signal) 
+ 
+ 
+3. Supporting Components (Essential) 
+Data Exchange Format — JSON 
+●​ Lightweight 
+●​ Easy React integration 
+●​ Supports structured outputs (matches, parameters) 
+ 
+File Handling 
+●​ Upload CSV → FastAPI 
+
+●​ Convert → NumPy array → MATLAB 
+ 
+Charting (Frontend) 
+Use: 
+●​ Recharts (clean, simple)​
+OR 
+●​ Plotly.js (if you want advanced spectral plots) 
+ 
+4. Optional but High-Value Additions 
+A. WebSocket (Real-time updates) 
+If you want: 
+●​ Live LMS convergence graph 
+●​ Step-size (μ) evolution 
+Use: 
+●​ FastAPI WebSockets 
+ 
+B. Database (For IR Reference Data) 
+Option 1 (Simple): 
+●​ JSON / CSV (local) 
+Option 2 (Better): 
+●​ SQLite 
+Option 3 (Scalable): 
+●​ PostgreSQL 
+
+👉 Start simple. Upgrade later. 
+ 
+5. Tech Stack Summary Table 
+Layer 
+Technology 
+Reason 
+Frontend 
+React.js 
+Best for dashboards 
+Backend 
+FastAPI (Python) 
+Native MATLAB integration 
+Processing 
+MATLAB 
+Core DSP logic 
+Integration 
+MATLAB Engine API 
+Direct execution 
+Data 
+Format 
+JSON 
+Clean API communication 
+Charts 
+Recharts / Plotly 
+Visualization 
+Storage 
+JSON / SQLite 
+IR database 
+ 
+6. Architecture Decision (Blunt Reality) 
+❌ Avoid: 
+●​ Node.js backend (poor MATLAB integration) 
+●​ Direct MATLAB → frontend (no control layer) 
+●​ Monolithic MATLAB UI (not scalable) 
+✅ Do: 
+●​ Use Python as control plane 
+●​ Keep MATLAB as compute engine 
+●​ Keep React as presentation layer 
+ 
+7. Execution Workflow 
+
+1. User uploads CSV (React) 
+2. FastAPI receives file 
+3. Converts → NumPy array 
+4. Sends to MATLAB Engine 
+5. MATLAB processes: 
+   - Filtering 
+   - Classification 
+   - Matching 
+6. Returns structured output 
+7. FastAPI → JSON response 
+8. React renders dashboard 
+ 
+ 
+8. Risk Considerations 
+MATLAB Engine Bottleneck 
+●​ MATLAB is not inherently scalable 
+●​ Each request may spawn/hold session 
+Mitigation: 
+●​ Maintain a persistent MATLAB session 
+●​ Queue requests if needed 
+ 
+Latency 
+●​ MATLAB execution can be slow for large N 
+Mitigation: 
+●​ Preprocess in Python where possible 
+●​ Optimize MATLAB code (vectorization) 
+ 
+9. Final Recommendation 
+
+React + FastAPI + MATLAB Engine is the optimal stack. 
+This gives you: 
+●​ Clean separation of concerns 
+●​ Minimal integration complexity 
+●​ Strong academic + industry credibility 
+ 
+

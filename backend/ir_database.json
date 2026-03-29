@@ -1,0 +1,27 @@
+[
+    {
+        "name": "Ethanol Absolute",
+        "cas": "64-17-5",
+        "features": ["O-H Stretch", "C-H Alkanes"]
+    },
+    {
+        "name": "Isopropanol",
+        "cas": "67-63-0",
+        "features": ["O-H Stretch", "C-H Alkanes", "Methyl Group"]
+    },
+    {
+        "name": "Acetonitrile",
+        "cas": "75-05-8",
+        "features": ["C#N Stretch", "C-H Alkanes"]
+    },
+    {
+        "name": "Methanol",
+        "cas": "67-56-1",
+        "features": ["O-H Stretch"]
+    },
+    {
+        "name": "Acetone",
+        "cas": "67-64-1",
+        "features": ["C=O Stretch", "Methyl Group"]
+    }
+]

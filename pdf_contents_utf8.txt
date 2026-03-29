@@ -1,0 +1,6 @@
+﻿================================ PRD.pdf ================================
+Error reading PRD.pdf: 'charmap' codec can't encode characters in position 210-211: character maps to <undefined>
+================================ DESIGN.pdf ================================
+Error reading DESIGN.pdf: 'charmap' codec can't encode characters in position 370-371: character maps to <undefined>
+================================ TECHSTACK.pdf ================================
+Error reading TECHSTACK.pdf: 'charmap' codec can't encode character '\u2193' in position 87: character maps to <undefined>
