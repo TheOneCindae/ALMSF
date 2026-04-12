@@ -64,6 +64,10 @@ def simulate_processing(signal: List[float]) -> Dict[str, Any]:
     max_val = np.max(np.abs(signal_arr)) or 1.0
     normalized_signal = signal_arr / max_val
     
+    # Use deterministic seeding based on signal hash so results are stable across runs
+    seed_val = int(np.sum(np.abs(signal_arr)) * 1000) % (2**32 - 1)
+    np.random.seed(seed_val)
+    
     # Simulate Noise Estimator (White noise std dev)
     noise_estimate = np.random.normal(0, 0.1, N)
     
@@ -107,11 +111,11 @@ def simulate_processing(signal: List[float]) -> Dict[str, Any]:
         matches = [{"name": "Ethanol", "cas": "64-17-5", "score": 98.2},
                    {"name": "Methanol", "cas": "67-56-1", "score": 82.1}]
         
-    # Simulate Functional Groups Peak Detection (augmented with confidence scores as planned)
-    functional_groups = [
-        {"name": "O-H Stretch", "confidence": "Strong", "score": 95},
-        {"name": "C-H Alkanes", "confidence": "Moderate", "score": 75},
-        {"name": "Methyl Group", "confidence": "Weak", "score": 45}
+    # Generate Noise Profiles (Replaces Functional Groups)
+    noise_profiles = [
+        {"name": "Environmental Drift", "intensity": "High", "score": float(np.random.uniform(75, 95))},
+        {"name": "Thermal Noise", "intensity": "Moderate", "score": float(np.random.uniform(40, 70))},
+        {"name": "Electronic Spikes", "intensity": "Low", "score": float(np.random.uniform(10, 30))}
     ]
     
     return {
@@ -129,5 +133,5 @@ def simulate_processing(signal: List[float]) -> Dict[str, Any]:
         },
         "mse_history": (np.linspace(1.0, 0.05, 50) + np.random.normal(0, 0.01, 50)).tolist(),
         "top_matches": matches,
-        "functional_groups": functional_groups
+        "noise_profiles": noise_profiles
     }

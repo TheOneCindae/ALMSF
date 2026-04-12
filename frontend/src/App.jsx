@@ -101,9 +101,6 @@ export default function App() {
           >
             RUN FILTER
           </button>
-          <div className="flex items-center ml-4 gap-2">
-            <span className="material-symbols-outlined text-slate-500 hover:text-primary-container cursor-pointer transition-colors">settings</span>
-          </div>
         </div>
       </header>
 
@@ -125,7 +122,7 @@ export default function App() {
                 <span className="material-symbols-outlined text-primary-container">person</span>
               </div>
               <div>
-                <div className="font-['Space_Grotesk'] text-xs font-bold uppercase tracking-widest text-primary-container">USER_01</div>
+                <div className="font-['Space_Grotesk'] text-xs font-bold uppercase tracking-widest text-primary-container">KARAN</div>
               </div>
             </div>
           </div>
@@ -134,10 +131,6 @@ export default function App() {
             <a className="flex items-center gap-4 text-[#00f2ff] bg-white/5 border-l-2 border-[#00f2ff] py-4 px-6 font-['Space_Grotesk'] text-xs font-bold uppercase tracking-widest group" href="#">
               <span className="material-symbols-outlined transition-transform group-hover:translate-x-1">analytics</span>
               Signal Processing
-            </a>
-            <a className="flex items-center gap-4 text-slate-500 py-4 px-6 opacity-60 hover:opacity-100 hover:bg-white/5 transition-all font-['Space_Grotesk'] text-xs font-bold uppercase tracking-widest group" href="#">
-              <span className="material-symbols-outlined transition-transform group-hover:translate-x-1">waves</span>
-              Noise Analysis
             </a>
           </div>
 
@@ -268,26 +261,26 @@ export default function App() {
 
             <div className="col-span-5 bg-surface-container-low ghost-border p-6 flex flex-col">
               <h3 className="font-headline text-sm font-bold uppercase tracking-widest text-[#ff00ff] mb-6 flex items-center gap-2">
-                <span className="material-symbols-outlined text-sm">hub</span>
-                Functional Groups Identified
+                <span className="material-symbols-outlined text-sm">waves</span>
+                Noise Profiles Detected
               </h3>
               <div className="flex flex-wrap gap-2">
-                {(data?.functional_groups || []).map((fg, idx) => {
-                  const colorClass = fg.score > 80 ? 'bg-secondary-container/10 border-secondary-container/30 text-secondary-container'
-                    : fg.score > 60 ? 'bg-primary-container/10 border-primary-container/30 text-primary-container'
+                {(data?.noise_profiles || []).map((np_item, idx) => {
+                  const colorClass = np_item.score > 80 ? 'bg-error-container/20 border-error/50 text-error'
+                    : np_item.score > 40 ? 'bg-primary-container/10 border-primary-container/30 text-primary-container'
                       : 'bg-white/5 border-white/10 text-slate-400';
-                  const dotClass = fg.score > 80 ? 'bg-secondary-container'
-                    : fg.score > 60 ? 'bg-primary-container'
+                  const dotClass = np_item.score > 80 ? 'bg-error'
+                    : np_item.score > 40 ? 'bg-primary-container'
                       : 'bg-slate-500';
 
                   return (
                     <div key={idx} className={`px-3 py-1.5 border font-mono text-[10px] uppercase tracking-wider flex items-center gap-2 ${colorClass}`}>
                       <span className={`w-1.5 h-1.5 rounded-full ${dotClass}`}></span>
-                      {fg.name}
+                      {np_item.name} ({np_item.intensity})
                     </div>
                   );
                 })}
-                {!data && <div className="text-white/20 font-mono text-xs">NO GROUPS DETECTED</div>}
+                {!data && <div className="text-white/20 font-mono text-xs">NO NOISE DETECTED</div>}
               </div>
             </div>
           </section>
