@@ -1,4 +1,4 @@
-# ALMSF
+# ADVANCE LMS FLITER WEBAPP
 
 ALMSF is a full-stack IR spectroscopy app.  
 It accepts CSV signal data, applies adaptive filtering/noise analysis, and shows results in a web dashboard.
